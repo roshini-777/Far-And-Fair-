@@ -9,6 +9,6 @@
 * **Interactive Maps & Local Attractions:** Integrated Leaflet.js & OpenStreetMap view marking the exact accommodation alongside nearby transit hubs and sightseeing spots.
 
 ## 🛠️ Tech Stack & Architecture
-* **Frontend:** HTML5, CSS3 (Modern Flexbox/Grid), Vanilla JavaScript (Member 1 / Lead)
-* **Backend:** Python Flask & RESTful API endpoints, custom filter & budget logic (Member 2)
-* **Database:** Python SQLite3 with automatic lightweight seeding for 10+ sample properties across Bengaluru, Mumbai, and Delhi (Member 3)
+* **Frontend:** HTML5, CSS3 (Modern Flexbox/Grid), Vanilla JavaScript 
+* **Backend:** Python Flask & RESTful API endpoints, custom filter & budget logic
+* **Database:** Python SQLite3 with automatic lightweight seeding for 10+ sample properties across Bengaluru, Mumbai, and Delhi 
