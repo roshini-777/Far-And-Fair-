@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Far &amp; Fair — Smart Accommodation &amp; Upfront Budget Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <div class="brand">
+        <span class="brand-badge">F&amp;F</span>
+        <div>
+          <h1>Far &amp; Fair</h1>
+          <p>Transparent Stays &amp; Upfront Cost Planner</p>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button id="scrollCompareBtn" class="btn-outline" type="button">
+          Compare Stays (<span id="compareCount">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PREMIUM HERO SECTION -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <span class="hero-pill">No Hidden Deposit Surprises • Built for Students, Interns &amp; Travellers</span>
+      <h2>Know Your True Trip Cost &amp; Upfront Cash Before You Book.</h2>
+      <p>Compare PGs, Hostels, and Hotels with full breakdowns of daily rent, meals, local commute, and 100% refundable deposits.</p>
+
+      <!-- MAIN SEARCH BAR -->
+      <form id="searchForm" class="search-bar">
+        <div class="search-field">
+          <label for="destinationInput">Destination</label>
+          <input type="text" id="destinationInput" placeholder="e.g. Bengaluru, Mumbai, Delhi" value="" />
+        </div>
+        <div class="search-field">
+          <label for="checkinInput">Check-in Date</label>
+          <input type="date" id="checkinInput" />
+        </div>
+        <div class="search-field">
+          <label for="durationInput">Duration (Days)</label>
+          <input type="number" id="durationInput" min="1" max="365" value="10" />
+        </div>
+        <div class="search-field">
+          <label for="budgetInput">Total Budget (₹)</label>
+          <input type="number" id="budgetInput" min="500" step="500" value="15000" />
+        </div>
+        <button type="submit" class="btn-primary search-submit">Search Stays</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- SEARCH FILTERS STRIP DIRECTLY UNDERNEATH -->
+  <section class="filters-section">
+    <div class="container">
+      <div class="filters-box">
+        <div class="filter-row-top">
+          <div class="filter-group">
+            <span class="filter-label">Stay Type:</span>
+            <div class="type-pills" id="typePills">
+              <button type="button" class="pill active" data-type="All">All</button>
+              <button type="button" class="pill" data-type="PG">PG</button>
+              <button type="button" class="pill" data-type="Hostel">Hostel</button>
+              <button type="button" class="pill" data-type="Hotel">Hotel</button>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="maxPriceRange">Max Daily Rent: <strong id="maxPriceLabel">₹2,500</strong></label>
+            <input type="range" id="maxPriceRange" min="400" max="2500" step="50" value="2500" />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="sharingSelect">Persons Sharing:</label>
+            <select id="sharingSelect">
+              <option value="">Any Occupancy</option>
+              <option value="1">1 Person (Private / Pod)</option>
+              <option value="2">2 Persons Sharing</option>
+              <option value="3">3+ Persons Sharing</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row-amenities">
+          <span class="filter-label">Must-Have Facilities:</span>
+          <label class="chip-check"><input type="checkbox" id="filterFood" /> 🍽️ Food Included</label>
+          <label class="chip-check"><input type="checkbox" id="filterWifi" /> 📶 High-Speed Wi-Fi</label>
+          <label class="chip-check"><input type="checkbox" id="filterGym" /> 🏋️ Gym</label>
+          <label class="chip-check"><input type="checkbox" id="filterLaundry" /> 🧺 Laundry</label>
+          <label class="chip-check"><input type="checkbox" id="filterSecurity" /> 🛡️ 24/7 Security</label>
+          <label class="chip-check"><input type="checkbox" id="filterStudy" /> 📚 Study Room</label>
+          <button type="button" id="resetFiltersBtn" class="btn-link">Reset All</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN RESULTS SPLIT LAYOUT -->
+  <main class="container results-layout">
+    <!-- LEFT: FIXED BUDGET DASHBOARD -->
+    <aside class="budget-sidebar">
+      <div class="budget-card">
+        <div class="budget-header">
+          <span class="budget-tag">LIVE BUDGET DASHBOARD</span>
+          <h3 id="selectedStayTitle">Select or Preview a Stay</h3>
+          <p id="selectedStayMeta">Showing real-time expense + refundable deposit split</p>
+        </div>
+
+        <div class="budget-metrics">
+          <div class="metric-row">
+            <span>Accommodation (<span id="dashDays">10</span> days)</span>
+            <strong id="dashRent">₹0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Est. Food &amp; Meals</span>
+            <strong id="dashFood">₹0</strong>
+          </div>
+          <div class="metric-row">
+            <span>Est. Local Transport</span>
+            <strong id="dashTransport">₹0</strong>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="metric-row highlight-actual">
+            <div>
+              <span>Actual Trip Spending</span>
+              <small>Non-refundable living cost</small>
+            </div>
+            <strong id="dashActual">₹0</strong>
+          </div>
+
+          <div class="metric-row highlight-deposit">
+            <div>
+              <span>Refundable Security Deposit</span>
+              <small>Returned at checkout</small>
+            </div>
+            <strong id="dashDeposit">₹0</strong>
+          </div>
+
+          <div class="upfront-box" id="upfrontBox">
+            <div class="upfront-top">
+              <span>TOTAL UPFRONT CASH NEEDED</span>
+              <strong id="dashUpfront">₹0</strong>
+            </div>
+            <p id="budgetStatusText" class="budget-status">Enter your budget above to check affordability.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: ACCOMMODATION CARDS GRID -->
+    <section class="results-main">
+      <div class="results-toolbar">
+        <h2 id="resultsHeading">Available Stays (10)</h2>
+        <span class="hint-text">Click any card for full details &amp; sightseeing map • Click card radio to preview budget</span>
+      </div>
+      <div id="cardsGrid" class="cards-grid"></div>
+    </section>
+  </main>
+
+  <!-- COMPARISON SECTION -->
+  <section id="comparisonSection" class="container comparison-section">
+    <div class="section-head">
+      <div>
+        <h2>Side-by-Side Stay Comparison</h2>
+        <p>Shortlist up to 3 stays using the "Compare" button on any card to compare true upfront costs and facilities.</p>
+      </div>
+      <button type="button" id="clearCompareBtn" class="btn-outline">Clear Shortlist</button>
+    </div>
+    <div id="comparisonContainer" class="comparison-empty">
+      No stays shortlisted yet. Click <strong>"+ Compare"</strong> on 2 or 3 accommodation cards above.
+    </div>
+  </section>
+
+  <!-- ACCOMMODATION DETAIL MODAL + INTERACTIVE MAP -->
+  <div id="detailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+      <button type="button" id="closeModalBtn" class="modal-close" aria-label="Close">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p><strong>Far &amp; Fair</strong> — Smart Accommodation Discovery &amp; Upfront Budget Planning Platform</p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="map.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
